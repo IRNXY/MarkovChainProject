@@ -1,0 +1,104 @@
+
+:root {
+    --bg-color: #f3c6c6;
+    --container-bg: rgb(234, 226, 226);
+    --text-color: #000;
+    --label-color: #555;
+    --output-bg: #fafafa;
+    --output-border: #ccc;
+    --input-bg: #fff;
+    --input-text: #000;
+}
+
+
+body.dark-mode {
+    --bg-color: #121212;
+    --container-bg: #2d2d2d;
+    --text-color: #e0e0e0;
+    --label-color: #bbb;
+    --output-bg: #1e1e1e;
+    --output-border: #444;
+    --input-bg: #3d3d3d;
+    --input-text: #fff;
+}
+
+body {
+    font-family: sans-serif;
+    background: var(--bg-color);
+    display: flex;
+    justify-content: center;
+    padding: 50px;
+    transition: background 0.3s ease;
+}
+
+.container {
+    background: var(--container-bg);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    width: 100%;
+    max-width: 500px;
+    color: var(--text-color);
+    transition: background 0.3s ease;
+}
+
+.header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+h2 { margin: 0; font-size: 20px; }
+
+.output {
+    min-height: 150px;
+    border: 1px solid var(--output-border);
+    padding: 10px;
+    margin-bottom: 20px;
+    background: var(--output-bg);
+    color: var(--input-text);
+    border-radius: 4px;
+    white-space: pre-wrap;
+}
+
+.field { margin-bottom: 15px; }
+
+label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: var(--label-color);
+}
+
+select, input[type="number"], input[type="file"] {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    background: var(--input-bg);
+    color: var(--input-text);
+    border: 1px solid var(--output-border);
+    border-radius: 4px;
+}
+
+.btn-group { display: flex; flex-direction: column; gap: 10px; }
+
+button {
+    width: 100%;
+    padding: 10px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover { background: #0056b3; }
+
+#themeBtn {
+    width: auto;
+    padding: 5px 10px;
+    font-size: 12px;
+    background: #6c757d;
+}
