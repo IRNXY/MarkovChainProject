@@ -27,7 +27,7 @@ def generate_markov_text(markov_dict, text_len):
 def create_markov_matrix(words, n):
     matrix = {}
     for i in range(len(words) - n):
-        key = tuple(words[i : i + n]) # организация цепи и скользящего окна
+        key = tuple(words[i: i + n]) # организация цепи и скользящего окна
         new_word = words[i + n]
         if key not in matrix:
             matrix[key] = {}
