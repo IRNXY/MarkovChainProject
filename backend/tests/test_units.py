@@ -14,7 +14,7 @@ from fastapi.testclient import TestClient
 # ==============================================================================
 
 # Создаём тестовое приложение и подключаем роутер
-app = FastAPI()
+# app = FastAPI()
 
 # Подключаем роутер (раскомментируй когда настроишь импорт):
 # app.include_router(router)
@@ -40,7 +40,7 @@ async def mock_endpoint(request_data: dict):
     return {"text": text}
 
 # TestClient — имитирует HTTP-запросы без запуска настоящего сервера
-client = TestClient(app)
+# client = TestClient(app)
 
 
 # ==============================================================================
