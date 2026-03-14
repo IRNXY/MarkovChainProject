@@ -24,5 +24,4 @@ async def process_generation_request(request: Request):
 
     markov_text = generate_markov_text(markov_matrix, total_words)
 
-
     return {"text": markov_text}
