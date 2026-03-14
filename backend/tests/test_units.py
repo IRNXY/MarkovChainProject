@@ -1,7 +1,11 @@
 import pytest
+import os
+import sys
 
-from ..app.services.markov_chain import generate_markov_text, create_markov_matrix
-from ..app.utils.file_read import read_txt
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from app.services.markov_chain import generate_markov_text, create_markov_matrix
+from app.utils.file_read import read_txt
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
