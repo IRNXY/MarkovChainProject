@@ -1,8 +1,4 @@
-import sys
-import os
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
-
+import pytest
 from app.services.markov_chain import generate_markov_text, create_markov_matrix
 from app.utils.file_read import read_txt
 from fastapi import FastAPI
