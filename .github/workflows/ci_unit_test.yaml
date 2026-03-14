@@ -26,6 +26,6 @@ jobs:
 
     - name: Run tests
       run: |
-          python tests/test_units.py
+          python backend/tests/test_units.py
 
 
