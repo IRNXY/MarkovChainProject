@@ -20,7 +20,7 @@ def generate_markov_text(markov_dict, text_len):
                     break
             current = tuple(text[-n:])
         else:
-            current = random.choice(list(markov_dict.key()))
+            current = random.choice(list(markov_dict.keys()))
     return " ".join(text)
 
 
