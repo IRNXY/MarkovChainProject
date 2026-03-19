@@ -22,6 +22,12 @@ themeBtn.addEventListener('click', () => {
 fileInput.addEventListener('change', function() {
     const file = this.files[0];
     if (file) {
+        if (!file.name.endsWith('.txt')) {
+                outputDiv.innerText = "Ошибка: Допустимы только файлы формата .txt";
+                this.value = ""; //сбрасываем выбор
+                uploadedText = "";
+                return;
+            }
         const reader = new FileReader();
         reader.onload = (e) => {
             uploadedText = e.target.result;
@@ -35,6 +41,16 @@ fileInput.addEventListener('change', function() {
 async function sendData() {
     if (!uploadedText) {
         outputDiv.innerText = "Сначала загрузите текстовый файл!";
+        return;
+    }
+    const wordsArray = uploadedText.trim().split(/\s+/).filter(word => word.length > 0);
+    if (wordsArray.length < 5) {
+        outputDiv.innerText = "Ошибка: Текст в файле слишком короткий (нужно минимум 5 слов).";
+        return;
+    }
+    const totalWords = parseInt(totalWordsInput.value);
+    if (isNaN(totalWords) || totalWords <= 0) {
+        outputDiv.innerText = "Ошибка: Введите положительное количество слов для генерации.";
         return;
     }
     outputDiv.innerText = "Загрузка...";
@@ -52,7 +68,11 @@ async function sendData() {
         });
 
         const result = await response.json();
-        outputDiv.innerText = result.text || "Сервер вернул пустой результат";
+        if (result.status === "failed") {
+            outputDiv.innerText = "Ошибка сервера: " + (result.error_message || "Неизвестная ошибка");
+        } else {
+            outputDiv.innerText = result.text || "Сервер вернул пустой результат";
+        }
     } catch (error) {
         console.error("Ошибка:", error);
         outputDiv.innerText = "Ошибка: Сервер не отвечает. Повторите попытку позже.";
