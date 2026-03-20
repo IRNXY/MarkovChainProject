@@ -48,9 +48,17 @@ async function sendData() {
         outputDiv.innerText = "Ошибка: Текст в файле слишком короткий (нужно минимум 5 слов).";
         return;
     }
+    if (wordsArray.length > 1000000) {
+        outputDiv.innerText = "Ошибка: Текст в файле слишком длинный (можно максимум 1000000 слов).";
+        return;
+    }
     const totalWords = parseInt(totalWordsInput.value);
     if (isNaN(totalWords) || totalWords <= 0) {
         outputDiv.innerText = "Ошибка: Введите положительное количество слов для генерации.";
+        return;
+    }
+    if (totalWords > 10000) {
+        outputDiv.innerText = "Ошибка: Прости, мы пока что не научились генерировать такие большие тексты.";
         return;
     }
     outputDiv.innerText = "Загрузка...";
