@@ -1,3 +1,4 @@
+const containerMain = document.getElementById('containerMain');
 const outputDiv = document.getElementById('output');
 const ngramSelect = document.getElementById('ngram');
 const totalWordsInput = document.getElementById('totalWords');
@@ -74,7 +75,7 @@ function createDownloadButton(text, filename = 'generated_text.txt') {
     });
 
     // Вставляем кнопку после outputDiv
-    outputDiv.parentNode.insertBefore(downloadBtn, outputDiv.nextSibling);
+    sendBtn.parentNode.insertBefore(downloadBtn, sendBtn.nextSibling);
 
     return downloadBtn;
 }
@@ -90,8 +91,8 @@ async function sendData() {
         outputDiv.innerText = "Ошибка: Текст в файле слишком короткий (нужно минимум 5 слов).";
         return;
     }
-    if (wordsArray.length > 1000000) {
-        outputDiv.innerText = "Ошибка: Текст в файле слишком длинный (можно максимум 1000000 слов).";
+    if (wordsArray.length > 250000) {
+        outputDiv.innerText = "Ошибка: Текст в файле слишком длинный (можно максимум 100000 слов).";
         return;
     }
     const totalWords = parseInt(totalWordsInput.value);
@@ -99,7 +100,7 @@ async function sendData() {
         outputDiv.innerText = "Ошибка: Введите положительное количество слов для генерации.";
         return;
     }
-    if (totalWords > 10000) {
+    if (totalWords > 100000) {
         outputDiv.innerText = "Ошибка: Прости, мы пока что не научились генерировать такие большие тексты.";
         return;
     }
