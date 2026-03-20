@@ -1,20 +1,18 @@
 import pytest
+import os
+import sys
+
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
 from app.services.markov_chain import generate_markov_text, create_markov_matrix
 from app.utils.file_read import read_txt
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
-# ==============================================================================
-# НАСТРОЙКА ТЕСТОВОГО ПРИЛОЖЕНИЯ FastAPI
-# ==============================================================================
 
-# Создаём тестовое приложение и подключаем роутер
 app = FastAPI()
 
-# Подключаем роутер (раскомментируй когда настроишь импорт):
-# app.include_router(router)
 
-# Временный тестовый эндпоинт (замени на настоящий роутер)
 @app.post("/generate_markov_txt")
 async def mock_endpoint(request_data: dict):
     """Временный эндпоинт для тестирования — замени на настоящий роутер"""
@@ -37,10 +35,6 @@ async def mock_endpoint(request_data: dict):
 # TestClient — имитирует HTTP-запросы без запуска настоящего сервера
 client = TestClient(app)
 
-
-# ==============================================================================
-# ТЕСТЫ ДЛЯ read_txt
-# ==============================================================================
 
 class TestReadTxt:
     """Тесты функции read_txt — чтение и токенизация текста"""
@@ -102,10 +96,6 @@ class TestReadTxt:
         assert result == ["слово"]
         assert len(result) == 1
 
-
-# ==============================================================================
-# ТЕСТЫ ДЛЯ create_markov_matrix
-# ==============================================================================
 
 class TestCreateMarkovMatrix:
     """Тесты функции create_markov_matrix — построение матрицы переходов"""
@@ -192,17 +182,12 @@ class TestCreateMarkovMatrix:
         words = ["раз", "два", "три"]
         try:
             matrix = create_markov_matrix(words, n=0)
-            # Если не упало — проверяем что результат разумный
             assert isinstance(matrix, dict)
         except Exception as e:
             pytest.skip(
                 f"ТРЕБОВАНИЕ: добавить валидацию n > 0, сейчас ошибка: {e}"
             )
 
-
-# ==============================================================================
-# ТЕСТЫ ДЛЯ generate_markov_text
-# ==============================================================================
 
 class TestGenerateMarkovText:
     """Тесты функции generate_markov_text — генерация текста по матрице"""
@@ -224,7 +209,6 @@ class TestGenerateMarkovText:
         matrix = self.get_simple_matrix()
         result = generate_markov_text(matrix, text_len=10)
         word_count = len(result.split())
-        # Допускаем небольшое отклонение из-за особенностей алгоритма
         assert word_count >= 8, (
             f"ТРЕБОВАНИЕ: должно быть ~10 слов, получено {word_count}"
         )
@@ -249,8 +233,6 @@ class TestGenerateMarkovText:
         ТРЕБОВАНИЕ К КОМАНДЕ: исправить .key() на .keys() в строке:
             current = random.choice(list(markov_dict.key()))
         """
-        # Создаём матрицу где гарантированно встретится отсутствующий ключ
-        # (небольшая матрица + большой запрос = выход за пределы цепочки)
         small_matrix = {("старт",): {"конец": 1}}
         try:
             result = generate_markov_text(small_matrix, text_len=100)
@@ -282,10 +264,6 @@ class TestGenerateMarkovText:
             )
 
 
-# ==============================================================================
-# ТЕСТЫ ДЛЯ process_generation_request (HTTP эндпоинт)
-# ==============================================================================
-
 class TestProcessGenerationRequest:
     """Тесты HTTP эндпоинта /generate_markov_txt"""
 
@@ -315,7 +293,7 @@ class TestProcessGenerationRequest:
             "total_words": 10
         }
         response = client.post("/generate_markov_txt", json=payload)
-        assert response.status_code == 200  # не должно быть 500!
+        assert response.status_code == 200
         data = response.json()
         assert "error" in data, (
             "ТРЕБОВАНИЕ: пустой файл → вернуть {'error': 'описание проблемы'}"
@@ -347,7 +325,6 @@ class TestProcessGenerationRequest:
         """
         payload = {"file": "текст"}  # нет n-gramma и total_words
         response = client.post("/generate_markov_txt", json=payload)
-        # Сервер не должен вернуть 500
         assert response.status_code != 500, (
             "ТРЕБОВАНИЕ: добавить Pydantic модель для валидации запроса"
         )
@@ -380,39 +357,3 @@ class TestProcessGenerationRequest:
         }
         response = client.post("/generate_markov_txt", json=payload)
         assert response.status_code != 500
-
-
-# ==============================================================================
-# СВОДКА ТРЕБОВАНИЙ К КОМАНДЕ
-# ==============================================================================
-"""
-📋 СПИСОК НАЙДЕННЫХ ПРОБЛЕМ И ТРЕБОВАНИЙ:
-
-🔴 КРИТИЧЕСКИЕ БАГИ (нужно исправить сейчас):
-─────────────────────────────────────────────
-1. markov_chain.py, строка ~19:
-   БАГИ: markov_dict.key() → исправить на markov_dict.keys()
-   Это вызовет AttributeError при попытке случайного выбора ключа
-
-2. markov_generation.py:
-   НЕТ ОБРАБОТКИ ОШИБОК — если в тексте мало слов, сервер упадёт с 500.
-   Добавить проверку: if len(words) <= n_gramma: return {"error": "..."}
-
-🟡 ВАЖНЫЕ УЛУЧШЕНИЯ:
-─────────────────────
-3. Добавить Pydantic модель для валидации входных данных:
-   class GenerationRequest(BaseModel):
-       file: str
-       n_gramma: int = Field(gt=0, alias="n-gramma")
-       total_words: int = Field(gt=0)
-
-4. Добавить проверку empty-файла в process_generation_request
-
-5. Добавить валидацию n > 0 в create_markov_matrix
-
-🟢 РЕКОМЕНДАЦИИ:
-─────────────────
-6. Добавить логирование ошибок (logging модуль)
-7. Написать документацию к каждой функции (docstrings)
-8. Рассмотреть обработку текстов только из цифр/символов
-"""
