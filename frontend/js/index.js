@@ -22,6 +22,12 @@ themeBtn.addEventListener('click', () => {
 fileInput.addEventListener('change', function() {
     const file = this.files[0];
     if (file) {
+        if (!file.name.endsWith('.txt')) {
+                outputDiv.innerText = "Ошибка: Допустимы только файлы формата .txt";
+                this.value = ""; //сбрасываем выбор
+                uploadedText = "";
+                return;
+            }
         const reader = new FileReader();
         reader.onload = (e) => {
             uploadedText = e.target.result;
@@ -31,10 +37,70 @@ fileInput.addEventListener('change', function() {
     }
 });
 
+// Функция для создания кнопки скачивания
+function createDownloadButton(text, filename = 'generated_text.txt') {
+    // Проверяем, есть ли уже кнопка скачивания
+    let downloadBtn = document.getElementById('downloadTxtBtn');
+
+    // Если кнопка уже существует, удаляем её
+    if (downloadBtn) {
+        downloadBtn.remove();
+    }
+
+    // Создаем новую кнопку
+    downloadBtn = document.createElement('button');
+    downloadBtn.id = 'downloadTxtBtn';
+    downloadBtn.textContent = '📥 Скачать файл';
+    downloadBtn.className = 'download-btn'; // Добавим класс для стилизации
+
+    // Добавляем обработчик клика
+    downloadBtn.addEventListener('click', () => {
+        // Создаем Blob с текстом
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+
+        // Создаем ссылку для скачивания
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+
+        // Эмулируем клик для скачивания
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Очищаем память
+        URL.revokeObjectURL(url);
+    });
+
+    // Вставляем кнопку после outputDiv
+    outputDiv.parentNode.insertBefore(downloadBtn, outputDiv.nextSibling);
+
+    return downloadBtn;
+}
+
 //функция генерации
 async function sendData() {
     if (!uploadedText) {
         outputDiv.innerText = "Сначала загрузите текстовый файл!";
+        return;
+    }
+    const wordsArray = uploadedText.trim().split(/\s+/).filter(word => word.length > 0);
+    if (wordsArray.length < 5) {
+        outputDiv.innerText = "Ошибка: Текст в файле слишком короткий (нужно минимум 5 слов).";
+        return;
+    }
+    if (wordsArray.length > 1000000) {
+        outputDiv.innerText = "Ошибка: Текст в файле слишком длинный (можно максимум 1000000 слов).";
+        return;
+    }
+    const totalWords = parseInt(totalWordsInput.value);
+    if (isNaN(totalWords) || totalWords <= 0) {
+        outputDiv.innerText = "Ошибка: Введите положительное количество слов для генерации.";
+        return;
+    }
+    if (totalWords > 10000) {
+        outputDiv.innerText = "Ошибка: Прости, мы пока что не научились генерировать такие большие тексты.";
         return;
     }
     outputDiv.innerText = "Загрузка...";
@@ -52,7 +118,15 @@ async function sendData() {
         });
 
         const result = await response.json();
-        outputDiv.innerText = result.text || "Сервер вернул пустой результат";
+        if (result.status === "failed") {
+            outputDiv.innerText = "Ошибка сервера: " + (result.error_message || "Неизвестная ошибка");
+        } else {
+            outputDiv.innerText = result.text || "Сервер вернул пустой результат";
+
+            if (!isNaN(totalWords)){
+                createDownloadButton(result.text, 'markov_generated_text.txt');
+            }
+        }
     } catch (error) {
         console.error("Ошибка:", error);
         outputDiv.innerText = "Ошибка: Сервер не отвечает. Повторите попытку позже.";
