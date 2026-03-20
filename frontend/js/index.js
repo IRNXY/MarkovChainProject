@@ -37,6 +37,48 @@ fileInput.addEventListener('change', function() {
     }
 });
 
+// Функция для создания кнопки скачивания
+function createDownloadButton(text, filename = 'generated_text.txt') {
+    // Проверяем, есть ли уже кнопка скачивания
+    let downloadBtn = document.getElementById('downloadTxtBtn');
+
+    // Если кнопка уже существует, удаляем её
+    if (downloadBtn) {
+        downloadBtn.remove();
+    }
+
+    // Создаем новую кнопку
+    downloadBtn = document.createElement('button');
+    downloadBtn.id = 'downloadTxtBtn';
+    downloadBtn.textContent = '📥 Скачать файл';
+    downloadBtn.className = 'download-btn'; // Добавим класс для стилизации
+
+    // Добавляем обработчик клика
+    downloadBtn.addEventListener('click', () => {
+        // Создаем Blob с текстом
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+
+        // Создаем ссылку для скачивания
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+
+        // Эмулируем клик для скачивания
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Очищаем память
+        URL.revokeObjectURL(url);
+    });
+
+    // Вставляем кнопку после outputDiv
+    outputDiv.parentNode.insertBefore(downloadBtn, outputDiv.nextSibling);
+
+    return downloadBtn;
+}
+
 //функция генерации
 async function sendData() {
     if (!uploadedText) {
@@ -80,6 +122,10 @@ async function sendData() {
             outputDiv.innerText = "Ошибка сервера: " + (result.error_message || "Неизвестная ошибка");
         } else {
             outputDiv.innerText = result.text || "Сервер вернул пустой результат";
+
+            if (!isNaN(totalWords)){
+                createDownloadButton(result.text, 'markov_generated_text.txt');
+            }
         }
     } catch (error) {
         console.error("Ошибка:", error);
